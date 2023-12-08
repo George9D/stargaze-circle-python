@@ -39,9 +39,10 @@ colorpicker = html.Div(
             type="color",
             id="colorpicker",
             value="#FFFFFF",
-            style={"width": 185, "height": 50, 'background-color': 'transparent', 'display': 'inline-block'} ,#'border-color': '#db2c74'
+            style={"height": 50, 'background-color': 'transparent', 'display': 'inline-block'}
         ),
-    ], style={'display': 'inline-block', 'margin-right': '5px', 'width': '70px'}
+    #], style={'display': 'inline-block', 'margin-right': '5px', 'width': '250px'}
+    ], style={'display': 'inline-block', 'margin-right': '5px'}
 )
 
 
@@ -88,21 +89,24 @@ app.layout = dbc.Container([
                                 style={'margin-bottom': '20px'}
                             ),
                             dbc.Row([
-                                dbc.Col([
-                                    colorpicker,
-                                ], align="center", xs=6, sm=6, md=6, lg=6, xl=6, xxl=6),
-                                dbc.Col([
-                                    dbc.Button(
-                                        children=["Change BG Color"],
-                                        id="change-bg-btn",
-                                        download="stargaze_circle.png",
-                                        className="m-1",
-                                        color="primary",
-                                        n_clicks=0,
-                                        style={'width': '200px'}
-                                    )
-                                ], align="center", xs=6, sm=6, md=6, lg=6, xl=6, xxl=6)
-                            ], justify="center"),
+                                html.Div([
+                                    dbc.Row([
+                                        colorpicker
+                                    ], justify="center")
+                                ], style={'width': '200px'}),
+                                html.Div([
+                                    dbc.Row([
+                                        dbc.Button(
+                                            children=["Change BG color"],
+                                            id="change-bg-btn",
+                                            download="stargaze_circle.png",
+                                            className="m-1",
+                                            color="primary",
+                                            n_clicks=0,
+                                        ),
+                                    ], justify="center")
+                                ], style={'width': '200px'})
+                            ], justify="around", style={'margin-top': '15px'}),
                             dbc.Row([
                                 html.Div([
                                     dbc.Row([
