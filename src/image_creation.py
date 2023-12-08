@@ -6,6 +6,7 @@ import time
 import requests
 from PIL import Image, ImageDraw
 from src.constants import *
+from io import BytesIO
 
 COMMON_REQUEST_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.0.0 Safari/537.36"
@@ -74,7 +75,74 @@ def create_mask(image: Image) -> Image:
     ImageDraw.Draw(alpha).pieslice([(0, 0), mask_size], 0, 360, fill=255)
     return alpha.resize(image.size, Image.LANCZOS)
 
+def create_image_new(
+    bg_size: tuple[int],
+    bg_color: str,
+    layer_config: LayerConfig,
+    placeholder_img_path: Path = None,
+    debug_img_path: Path = None,
+) -> BytesIO:
 
+    if bg_color:
+        bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
+    else:
+        bg = Image.open("assets/stars-fx-a.jpg").resize(bg_size)
+
+    print("creating circles. might take time...")
+
+    for layer_idx in range(len(layer_config)):
+
+        R, count, gap_size, users = layer_config[layer_idx]
+        gaps_count = count - 1
+        base_usr_img_angle = 360 / count
+
+        if layer_idx == 0:
+            usr_img_hw = layer_config[1][0] + 40
+
+        for user_idx in range(len(users)):
+            if layer_idx != 0:
+                circumference = 2 * math.pi * R
+                usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
+
+            if debug_img_path:
+                avatar = Image.open(debug_img_path)
+            else:
+                avatar = Image.open(
+                    download_avatar(users[user_idx]["avatar_url"], "assets/placeholder_avatar.png")
+                )
+
+            avatar = avatar.convert("RGB").resize((usr_img_hw, usr_img_hw))
+
+            angle = math.radians(base_usr_img_angle * user_idx + gap_size)
+
+            avatar_center_x = math.floor(math.cos(angle) * R + (bg.size[0] / 2))
+            avatar_center_y = math.floor(math.sin(angle) * R + (bg.size[1] / 2))
+
+            bg.paste(
+                avatar,
+                (
+                    math.floor(avatar_center_x - (usr_img_hw / 2)),
+                    math.floor(avatar_center_y - (usr_img_hw / 2)),
+                ),
+                create_mask(avatar),
+            )
+
+    # Save the image to a BytesIO object
+    image_bytes = BytesIO()
+    bg.save(image_bytes, format='PNG')
+
+    return image_bytes
+
+
+"""
+    start_time = time.time()
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print("create_image:", elapsed_time)
+"""
+
+
+"""
 def create_image_old(
     bg_size: tuple[int],
     bg_color: str,
@@ -135,74 +203,4 @@ def create_image_old(
 
     return bg
 
-
-from io import BytesIO
-
-def create_image_new(
-    bg_size: tuple[int],
-    bg_color: str,
-    layer_config: LayerConfig,
-    placeholder_img_path: Path = None,
-    debug_img_path: Path = None,
-) -> BytesIO:
-
-    if bg_color:
-        bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
-    else:
-        bg = Image.open("assets/stars-fx-a.jpg").resize(bg_size)
-
-
-    print("creating circles. might take time...")
-
-    for layer_idx in range(len(layer_config)):
-
-        print(layer_config[layer_idx])
-
-        R, count, gap_size, users = layer_config[layer_idx]
-        gaps_count = count - 1
-        base_usr_img_angle = 360 / count
-
-        if layer_idx == 0:
-            usr_img_hw = layer_config[1][0] + 40
-
-        for user_idx in range(len(users)):
-            if layer_idx != 0:
-                circumference = 2 * math.pi * R
-                usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
-
-            if debug_img_path:
-                avatar = Image.open(debug_img_path)
-            else:
-                avatar = Image.open(
-                    download_avatar(users[user_idx]["avatar_url"], "assets/placeholder_avatar.png")
-                )
-
-            avatar = avatar.convert("RGB").resize((usr_img_hw, usr_img_hw))
-
-            angle = math.radians(base_usr_img_angle * user_idx + gap_size)
-
-            avatar_center_x = math.floor(math.cos(angle) * R + (bg.size[0] / 2))
-            avatar_center_y = math.floor(math.sin(angle) * R + (bg.size[1] / 2))
-
-            bg.paste(
-                avatar,
-                (
-                    math.floor(avatar_center_x - (usr_img_hw / 2)),
-                    math.floor(avatar_center_y - (usr_img_hw / 2)),
-                ),
-                create_mask(avatar),
-            )
-
-    # Save the image to a BytesIO object
-    image_bytes = BytesIO()
-    bg.save(image_bytes, format='PNG')
-
-    return image_bytes
-
-
-"""
-    start_time = time.time()
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print("create_image:", elapsed_time)
 """

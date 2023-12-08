@@ -3,7 +3,7 @@ from pathlib import Path
 import src.exceptions as exceptions
 from src.constants import LayerConfig
 from src.data_collection import collect_data
-from src.image_creation import build_layer_config, create_image_old, create_image_new
+from src.image_creation import build_layer_config, create_image_new
 import time
 from src.encoding import encode_img_to_b64
 
@@ -26,42 +26,6 @@ class Config:
         [330, 15, 25],
         [450, 26, 20],
     ]
-
-
-def main(debug: bool = False):
-
-    d = Path("res/circles_dump.json").resolve()
-    i = Path("res/circles_md.png").resolve()
-    p = Path("res/placeholder_avatar.png").resolve()
-
-    try:
-        if debug and d.exists():
-            q = Path("res/debug_avatar.jpg").resolve()
-            with open(d, "r") as f:
-                lc = json.load(f)
-        else:
-            q = None
-
-            # new version - pandas df
-            df = collect_data(Config.WALLET)
-
-            # new version - pandas df
-            lc = build_layer_config(df, Config.LAYER_CONFIG)
-            print(lc)
-
-            #with open(d, "w") as f:
-            #    json.dump(lc, f)
-
-        image = create_image_old(Config.BG_SIZE, Config.BG_CLR, lc, q)
-        # image = create_image_new(Config.BG_SIZE, Config.BG_CLR, lc, q)
-        image.save(i, "PNG")
-        #print(image)
-
-        # data_str = encode_img_to_b64(image)
-        return image
-
-    except (exceptions.InvalidUser, exceptions.ApiError) as e:
-        print(e)
 
 # -------------------------------------------------------------------------------------------------------------------- #
 

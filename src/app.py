@@ -10,7 +10,6 @@ import requests
 import os
 
 import functions as f
-import main
 
 if 'REDIS_URL' in os.environ:
     # Use Redis & Celery if REDIS_URL set as an env variable
@@ -120,7 +119,7 @@ app.layout = dbc.Container([
                             ], justify="center", style={'margin-top': '15px'}),
                         ],
                         id="collapse",
-                        is_open=True,
+                        is_open=False,
                     ),
                 ],
                     style={
@@ -132,7 +131,7 @@ app.layout = dbc.Container([
             ], justify="center", style={'margin-top': '10px'}),
         ], align="center"),
 
-    ], justify="center", style={'position': 'absolute', "height": "100vh", 'width': '100%'}),
+    ], justify="center", style={'position': 'absolute', "height": "90vh", 'width': '100%'}),
 
     dbc.Row([
                 html.Footer([
@@ -183,7 +182,7 @@ app.layout = dbc.Container([
 
 ], fluid=True, style={"height": "100vh",
                       'position': 'absolute',
-                      'background-image': 'url(assets/stars1.jpeg',
+                      'background-image': 'url(assets/stars1.jpeg)',
                       'background-repreat': 'no-repeat',
                       'background-position': 'right top',
                       })
@@ -228,13 +227,13 @@ app.clientside_callback(
     State('image-store', 'data'),
     State('layer-config-store', 'data'),
     State('sg-wallet', 'value')],
-    background=True,
-    running=[
-        (Output("generate-circle-btn", "disabled"), True, False),
-        (Output("change-bg-btn", "disabled"), True, False),
-        (Output("download-btn", "disabled"), True, False),
-        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
-    ],
+    #background=True,
+    #running=[
+    #    (Output("generate-circle-btn", "disabled"), True, False),
+    #    (Output("change-bg-btn", "disabled"), True, False),
+    #    (Output("download-btn", "disabled"), True, False),
+    #    (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
+    #],
 )
 def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
 
@@ -242,9 +241,7 @@ def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data,
         if not layers:
             layers = f.get_layer_config(wallet)
 
-
         image_data = f.create_image(layers, None)
-
     elif ctx.triggered_id == "change-bg-btn":
         if not layers:
             layers = f.get_layer_config(wallet)
@@ -256,28 +253,26 @@ def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data,
 
         image_data = f.create_image(layers, bg_color)
     else:
-        current_image_bytes = base64.b64decode(current_image_data.split(',')[1])  # Decode base64
+        current_image_bytes = base64.b64decode(current_image_data.split(',')[1])
         current_img = Image.open(BytesIO(current_image_bytes)).convert('RGBA')
 
         # Create a new image with the selected background color
         new_img = Image.new(mode='RGBA', size=current_img.size, color=bg_color_data['color'])
 
-        # Set the alpha channel of the original image to 255 (fully opaque)
-        current_img_with_alpha = current_img.copy()
-        current_img_with_alpha.putalpha(255)
+        # Composite the original image onto the new image
+        result_img = Image.alpha_composite(new_img, current_img)
 
-        # Paste the original image onto the new image with the desired background color
-        new_img.paste(current_img_with_alpha, (0, 0), current_img_with_alpha)
-
-        # Save the new image to a BytesIO object
+        # Save the resulting image to a BytesIO object
         image_data = BytesIO()
-        new_img.save(image_data, format='PNG')
+        result_img.save(image_data, format='PNG')
+
+        # Save the resulting image to a file
+        result_img.save(filepath, "PNG")
 
     # Convert the BytesIO image data to base64 for storage in the dcc.Store
     encoded_image = f"data:image/png;base64,{base64.b64encode(image_data.getvalue()).decode()}"
 
-    #image = Image.open(image_data).convert('RGBA')
-    #image.save(filepath, "PNG")
+
 
     return [encoded_image, layers, True]
 
@@ -331,8 +326,6 @@ def func(n_clicks, image_data):
 
 if __name__ == '__main__':
     app.run_server(debug=True)
-
-
 
 
 
