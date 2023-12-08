@@ -188,10 +188,6 @@ app.layout = dbc.Container([
                       })
 
 
-def create_image():
-    image_data = main.main()
-    return image_data
-
 """@app.callback(
     Output('layer-config-store', 'data'),
     Input('header', 'children')
@@ -227,13 +223,13 @@ app.clientside_callback(
     State('image-store', 'data'),
     State('layer-config-store', 'data'),
     State('sg-wallet', 'value')],
-    #background=True,
-    #running=[
-    #    (Output("generate-circle-btn", "disabled"), True, False),
-    #    (Output("change-bg-btn", "disabled"), True, False),
-    #    (Output("download-btn", "disabled"), True, False),
-    #    (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
-    #],
+    background=True,
+    running=[
+        (Output("generate-circle-btn", "disabled"), True, False),
+        (Output("change-bg-btn", "disabled"), True, False),
+        (Output("download-btn", "disabled"), True, False),
+        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
+    ],
 )
 def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
 
