@@ -74,13 +74,13 @@ app.layout = dbc.Container([
                         ),
                     ], justify="center")
                 ], style={'width': '450px'})
-            ], justify="center", style={'margin-top': '100px'}),
+            ], justify="center", style={'margin-top': '30px'}),
             dbc.Row([
                 html.Div([
                     dbc.Collapse(
                         children=[
                             dbc.Card([
-                                dbc.CardImg(src="assets/stars-fx-a.jpg", top=True, id='image-display', bottom=True, style={'height': '500px'}),
+                                dbc.CardImg(src="assets/stars-fx-a.jpg", top=True, id='image-display', bottom=True, style={'height': '425px'}),
                             ],
                                 style={'margin-bottom': '20px', 'backgroundColor': "black"}
                             ),
@@ -123,7 +123,7 @@ app.layout = dbc.Container([
                             ], justify="around", style={'margin-top': '15px'}),
                         ],
                         id="collapse",
-                        is_open=False,
+                        is_open=True,
                     ),
                 ],
                     style={
@@ -135,7 +135,7 @@ app.layout = dbc.Container([
             ], justify="center", style={'margin-top': '10px'}),
         ], align="center"),
 
-    ], justify="center", style={'position': 'absolute', "height": "90vh", 'width': '100%', 'margin-bottom': '20px'}),
+    ], justify="center", style={'position': 'absolute', "height": "100vh", 'width': '100%', 'margin-bottom': '30px'}),
 
     dbc.Row([
                 html.Footer([
@@ -228,13 +228,13 @@ app.clientside_callback(
     State('image-store', 'data'),
     State('layer-config-store', 'data'),
     State('sg-wallet', 'value')],
-    background=True,
-    running=[
-        (Output("generate-circle-btn", "disabled"), True, False),
-        (Output("change-bg-btn", "disabled"), True, False),
-        (Output("download-btn", "disabled"), True, False),
-        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
-    ],
+    #background=True,
+    #running=[
+    #    (Output("generate-circle-btn", "disabled"), True, False),
+    #    (Output("change-bg-btn", "disabled"), True, False),
+    #    (Output("download-btn", "disabled"), True, False),
+    #    (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
+    #],
 )
 def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
 
