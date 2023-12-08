@@ -2,7 +2,7 @@ import math
 from io import BytesIO
 from pathlib import Path
 from typing import Union
-
+import time
 import requests
 from PIL import Image, ImageDraw
 from src.constants import *
@@ -147,9 +147,10 @@ def create_image_new(
 ) -> BytesIO:
 
     bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
-    print("created background")
 
     print("creating circles. might take time...")
+
+    start_time = time.time()
 
     for layer_idx in range(len(layer_config)):
         R, count, gap_size, users = layer_config[layer_idx]
@@ -186,6 +187,10 @@ def create_image_new(
                 ),
                 create_mask(avatar),
             )
+
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print("create_image:", elapsed_time)
 
     # Save the image to a BytesIO object
     image_bytes = BytesIO()

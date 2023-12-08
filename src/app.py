@@ -236,15 +236,11 @@ app.clientside_callback(
         (Output("generate-circle-btn", "disabled"), True, False),
         (Output("change-bg-btn", "disabled"), True, False),
         (Output("download-btn", "disabled"), True, False),
-        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circle"]),
+        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
     ],
 )
 def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
-    if bg_color_data:
-        print(bg_color_data)
 
-    # Check if an image is already loaded
-    # if not current_image_data:
     if ctx.triggered_id == "generate-circle-btn":
         layers = f.get_layer_config(wallet)
         image_data = f.create_image(layers, "rgba(255, 255, 255, 1)")

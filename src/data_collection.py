@@ -144,6 +144,49 @@ def get_wallet_tokens(address) -> DataFrame:
                 offset += limit
 
 
+def get_wallet_tokens_new(address) -> DataFrame:
+    url = graphQLEndpoint
+    body = ''' 
+                    {
+                      collectionCounts(owner: "''' + str(address) + '''", limit: 100) {
+                        collectionCounts {
+                          count
+                          collection {
+                            contractAddress
+                            name
+                            media {
+                              visualAssets {
+                                lg {
+                                  staticUrl
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                    '''
+
+    r = requests.post(url=url, json={"query": body})
+
+    if r.status_code == 200:
+        data = r.json()
+        data = json.dumps(data)
+        data = json.loads(data)
+        data = pd.json_normalize(data['data']['collectionCounts']['collectionCounts'])
+
+        data.rename(
+            columns={
+                'collection.contractAddress': 'address',
+                'collection.name': 'name',
+                'collection.media.visualAssets.lg.staticUrl': 'avatar_url'
+            },
+            inplace=True
+        )
+        return data
+
+
+
 def calc_score_collections(df: DataFrame) -> DataFrame:
     # agg and count the nbr of NFTs for each collection
     df = df.groupby('address', as_index=False).agg({'token_id': 'count', 'avatar_url': 'first'})
@@ -166,10 +209,16 @@ def collect_data(wallet: str) -> DataFrame:
                                   columns=['address', 'avatar_url']
                                   )
 
-    df_collection_holdings = get_wallet_tokens(address)
-    df_collection_holdings_score = calc_score_collections(df_collection_holdings)
-    df_collection_holdings_score.sort_values(by="score", inplace=True, ascending=False)
+    # df_collection_holdings = get_wallet_tokens(address)
+    # df_collection_holdings_score = calc_score_collections(df_collection_holdings)
+    # df_collection_holdings_score.sort_values(by="score", inplace=True, ascending=False)
 
-    df = pd.concat([df_center_user, df_collection_holdings_score], ignore_index=True)
+    df_collection_holdings = get_wallet_tokens_new(address)
+
+
+    df = pd.concat([df_center_user, df_collection_holdings], ignore_index=True)
 
     return df
+
+
+get_wallet_tokens_new("stars1adr72atmnzzvqlfe574c3qk5s9zxk0l2gq2rz5")
