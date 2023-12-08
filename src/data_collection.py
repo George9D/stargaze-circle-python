@@ -93,9 +93,9 @@ def get_profil_pict(address):
         if data['data']['wallet']['name']:
             return data['data']['wallet']['name']['media']['visualAssets']['sm']['staticUrl']
         else:
-            return None
+            return 0
     else:
-        return None
+        return 0
 
 
 def get_wallet_tokens(address) -> DataFrame:

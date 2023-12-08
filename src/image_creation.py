@@ -153,6 +153,9 @@ def create_image_new(
     start_time = time.time()
 
     for layer_idx in range(len(layer_config)):
+
+        print(layer_config[layer_idx])
+
         R, count, gap_size, users = layer_config[layer_idx]
         gaps_count = count - 1
         base_usr_img_angle = 360 / count
