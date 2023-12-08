@@ -38,7 +38,7 @@ colorpicker = html.Div(
             type="color",
             id="colorpicker",
             value="#FFFFFF",
-            style={"height": 50, 'background-color': 'transparent', 'display': 'inline-block'}
+            style={"height": 50, 'background-color': 'transparent', 'display': 'inline-block', 'padding-x': '0'}
         ),
     #], style={'display': 'inline-block', 'margin-right': '5px', 'width': '250px'}
     ], style={'display': 'inline-block', 'margin-right': '5px'}
@@ -87,9 +87,27 @@ app.layout = dbc.Container([
                             dbc.Row([
                                 html.Div([
                                     dbc.Row([
-                                        colorpicker
+                                        dbc.Input(
+                                            type="color",
+                                            id="colorpicker",
+                                            value="#FFFFFF",
+                                            style={"height": 50, 'background-color': 'transparent',
+                                                   'display': 'inline-block', 'padding-left': '0', 'padding-right': '0'}
+                                        ),
+                                    ], justify="start")
+                                ], style={'width': '90px'}),
+                                html.Div([
+                                    dbc.Row([
+                                        dbc.Button(
+                                            children=["Change BG color"],
+                                            id="change-bg-btn",
+                                            download="stargaze_circle.png",
+                                            className="m-1",
+                                            color="primary",
+                                            n_clicks=0,
+                                        ),
                                     ], justify="center")
-                                ], style={'width': '200px'}),
+                                ], style={'width': '180px'}),
                                 html.Div([
                                     dbc.Row([
                                         dbc.Button(
@@ -101,12 +119,11 @@ app.layout = dbc.Container([
                                             n_clicks=0,
                                         ),
                                     ], justify="center")
-                                ], style={'width': '200px'})
+                                ], style={'width': '180px'})
                             ], justify="around", style={'margin-top': '15px'}),
-
                         ],
                         id="collapse",
-                        is_open=False,
+                        is_open=True,
                     ),
                 ],
                     style={
@@ -204,28 +221,31 @@ app.clientside_callback(
     ],
     inputs=[
     Input('generate-circle-btn', 'n_clicks'),
-    #Input('change-bg-btn', 'n_clicks'),
+    Input('change-bg-btn', 'n_clicks'),
     ],
     state=[
     State('bg-color-store', 'data'),
     State('image-store', 'data'),
-    #State('layer-config-store', 'data'),
+    State('layer-config-store', 'data'),
     State('sg-wallet', 'value')],
     background=True,
     running=[
         (Output("generate-circle-btn", "disabled"), True, False),
-        #(Output("change-bg-btn", "disabled"), True, False),
+        (Output("change-bg-btn", "disabled"), True, False),
         (Output("download-btn", "disabled"), True, False),
         (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
     ],
 )
-def update_image(n_clicks, bg_color_data, current_image_data, wallet):
+def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
 
     if ctx.triggered_id == "generate-circle-btn":
-        layers = f.get_layer_config(wallet)
+        if not layers:
+            layers = f.get_layer_config(wallet)
+
         image_data = f.create_image(layers, None)
     elif ctx.triggered_id == "change-bg-btn":
-        layers = f.get_layer_config(wallet)
+        if not layers:
+            layers = f.get_layer_config(wallet)
 
         if bg_color_data:
             bg_color = bg_color_data['color']
@@ -308,22 +328,7 @@ def func(n_clicks, image_data):
 if __name__ == '__main__':
     app.run_server(debug=True)
 
-"""
- dbc.Row([
-                                html.Div([
-                                    dbc.Row([
-                                        dbc.Button(
-                                            children=["Download"],
-                                            id="download-btn",
-                                            download="stargaze_circle.png",
-                                            className="m-1",
-                                            color="primary",
-                                            n_clicks=0,
-                                        ),
-                                    ], justify="center")
-                                ], style={'width': '450px'})
-                            ], justify="center", style={'margin-top': '15px'}),
-"""
+
 
 """
                             dbc.Row([
