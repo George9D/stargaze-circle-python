@@ -46,12 +46,12 @@ def download_avatar(avatar_url: str, placeholder_img: Path) -> Union[BytesIO, Pa
         the path to the placeholder image.
     """
 
-    if avatar_url:
+    if avatar_url == 0:
+        return placeholder_img
+    else:
         r = requests.get(avatar_url, headers=COMMON_REQUEST_HEADERS)
         r.raise_for_status()
         return BytesIO(r.content)
-    else:
-        return placeholder_img
 
 
 def create_mask(image: Image) -> Image:
@@ -169,7 +169,7 @@ def create_image_new(
                 avatar = Image.open(debug_img_path)
             else:
                 avatar = Image.open(
-                    download_avatar(users[user_idx]["avatar_url"], "res/placeholder_avatar.png")
+                    download_avatar(users[user_idx]["avatar_url"], "assets/placeholder_avatar.png")
                 )
 
             avatar = avatar.convert("RGB").resize((usr_img_hw, usr_img_hw))

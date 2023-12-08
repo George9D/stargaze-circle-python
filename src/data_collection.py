@@ -51,10 +51,7 @@ def check_sg_name(input):
 def verify_wallet(address: str):
     try:
         if check_sg_name(address):
-            print("name was submitted!")
-            print(address[:-6])
             address = get_address_to_sg_name(address[:-6])
-            print(address)
             return address
         elif address[0:5] == "stars":
             return address
@@ -186,6 +183,8 @@ def get_wallet_tokens_new(address) -> DataFrame:
             },
             inplace=True
         )
+        data.fillna(0, inplace=True)
+        data.to_csv("df.csv")
         return data
 
 
