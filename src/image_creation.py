@@ -146,11 +146,13 @@ def create_image_new(
     debug_img_path: Path = None,
 ) -> BytesIO:
 
-    bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
+    if bg_color:
+        bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
+    else:
+        bg = Image.open("assets/stars-fx-a.jpg").resize(bg_size)
+
 
     print("creating circles. might take time...")
-
-    start_time = time.time()
 
     for layer_idx in range(len(layer_config)):
 
@@ -191,12 +193,16 @@ def create_image_new(
                 create_mask(avatar),
             )
 
-    end_time = time.time()
-    elapsed_time = end_time - start_time
-    print("create_image:", elapsed_time)
-
     # Save the image to a BytesIO object
     image_bytes = BytesIO()
     bg.save(image_bytes, format='PNG')
 
     return image_bytes
+
+
+"""
+    start_time = time.time()
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print("create_image:", elapsed_time)
+"""
