@@ -95,7 +95,6 @@ app.layout = dbc.Container([
                                     dbc.Button(
                                         children=["Change BG Color"],
                                         id="change-bg-btn",
-                                        href="src/circles.png",
                                         download="stargaze_circle.png",
                                         className="m-1",
                                         color="primary",
@@ -110,7 +109,6 @@ app.layout = dbc.Container([
                                         dbc.Button(
                                             children=["Download"],
                                             id="download-btn",
-                                            href="src/circles.png",
                                             download="stargaze_circle.png",
                                             className="m-1",
                                             color="primary",
@@ -232,6 +230,8 @@ app.clientside_callback(
     background=True,
     running=[
         (Output("generate-circle-btn", "disabled"), True, False),
+        (Output("change-bg-btn", "disabled"), True, False),
+        (Output("download-btn", "disabled"), True, False),
         (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circle"]),
     ],
 )
