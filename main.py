@@ -3,16 +3,19 @@ from pathlib import Path
 import src.exceptions as exceptions
 from src.constants import LayerConfig
 from src.data_collection import collect_data
-from src.image_creation import build_layer_config, create_image
+from src.image_creation import build_layer_config, create_image_old, create_image_new
 
-# from src.encoding import encode_img_to_b64
+from src.encoding import encode_img_to_b64
 
 
 class Config:
-    # Twitter username to scan
-    USERNAME = "AniketTeredesai"
+    # Twitter WALLET to scan
+    # WALLET = "stars1xuwl7x8htyl26t7pe3l0x6auj3j9jwd2k26qx5"
+    WALLET = "stars1adr72atmnzzvqlfe574c3qk5s9zxk0l2gq2rz5"
+    # WALLET = "stars1p655nr52wepstj39jr3skwv6nkmdrfka3e96ym"
     # hex of the desired background color
-    BG_CLR = "#448dd9"
+    # BG_CLR = "#448dd9"
+    BG_CLR = "rgba(255, 255, 255, 0)"
     # (height, width)
     BG_SIZE = (1000, 1000)
     # layer config constants
@@ -23,15 +26,12 @@ class Config:
         [330, 15, 25],
         [450, 26, 20],
     ]
-    # each page returns maximum of 200 tweets and likes
-    FAVORITES_PAGES_TO_FETCH = 1
-    TIMELINE_PAGES_TO_FETCH = 1
 
 
 def main(debug: bool = False):
 
     d = Path("res/circles_dump.json").resolve()
-    i = Path("res/circles.jpg").resolve()
+    i = Path("res/circles_md.png").resolve()
     p = Path("res/placeholder_avatar.png").resolve()
 
     try:
@@ -41,24 +41,43 @@ def main(debug: bool = False):
                 lc = json.load(f)
         else:
             q = None
-            ledger = collect_data(
-                Config.USERNAME,
-                Config.TIMELINE_PAGES_TO_FETCH,
-                Config.FAVORITES_PAGES_TO_FETCH,
-                Config.LAYER_CONFIG,
-            )
 
-            lc = build_layer_config(ledger, Config.LAYER_CONFIG)
+            # new version - pandas df
+            df = collect_data(Config.WALLET)
 
-            with open(d, "w") as f:
-                json.dump(lc, f)
+            # new version - pandas df
+            lc = build_layer_config(df, Config.LAYER_CONFIG)
+            print(lc)
 
-        image = create_image(Config.BG_SIZE, Config.BG_CLR, lc, p, q)
-        image.save(i, "jpeg")
+            #with open(d, "w") as f:
+            #    json.dump(lc, f)
+
+        image = create_image_old(Config.BG_SIZE, Config.BG_CLR, lc, q)
+        # image = create_image_new(Config.BG_SIZE, Config.BG_CLR, lc, q)
+        image.save(i, "PNG")
+        #print(image)
+
         # data_str = encode_img_to_b64(image)
+        return image
 
-    except (exceptions.InactiveUser, exceptions.InvalidUser, exceptions.ApiError) as e:
+    except (exceptions.InvalidUser, exceptions.ApiError) as e:
         print(e)
+
+# -------------------------------------------------------------------------------------------------------------------- #
+
+def get_layer_config(wallet):
+        df = collect_data(wallet)
+
+        # new version - pandas df
+        lc = build_layer_config(df, Config.LAYER_CONFIG)
+
+        return lc
+
+def create_image(lc, bg_color):
+    p = Path("res/placeholder_avatar.png").resolve()
+    q = None
+    image = create_image_new(Config.BG_SIZE, bg_color, lc, q)
+    return image
 
 
 if __name__ == "__main__":

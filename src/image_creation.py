@@ -1,9 +1,8 @@
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
 import math
 from io import BytesIO
 from pathlib import Path
+from typing import Union
+
 import requests
 from PIL import Image, ImageDraw
 from src.constants import *
@@ -13,33 +12,23 @@ COMMON_REQUEST_HEADERS = {
 }
 
 
-def build_layer_config(data: FilteredLedger, layer_config: LayerConfig) -> LayerConfig:
-    """Generate a LayerConfig from the final ledger and the set constants.
+def build_layer_config(data, layer_config: LayerConfig) -> list:
+    print("build_layer_confi")
+    # creates as a list containing different layers as separate dfs
+    #layer_config[x][1] contains the nbr of collections contained in this layer
 
-    Parameters
-    ----------
-    data : FilteredLedger
-        Ledger/list of users, their scores and avatar URLs.
-    layer_config : LayerConfig
-        Constant part of the LayerConfig.
+    prev_col_idx = 1
+    layer_config[0].append(data[0:1].to_dict(orient="records"))
 
-    Returns
-    -------
-    LayerConfig
-        A config data structure that translates to the image.
-    """
-
-    prev_usr_idx = 1
-    layer_config[0].append([data[0]])
     for idx in range(1, len(layer_config)):
-        curr_usr_idx = prev_usr_idx + layer_config[idx][1]
-        layer_config[idx].append(data[prev_usr_idx:curr_usr_idx])
-        prev_usr_idx = curr_usr_idx
+        cur_col_idx = prev_col_idx + layer_config[idx][1]
+        layer_config[idx].append(data[prev_col_idx:cur_col_idx].to_dict(orient="records"))
+        prev_col_idx = cur_col_idx
 
     return layer_config
 
 
-def download_avatar(avatar_url: str, placeholder_img: Path) -> BytesIO | Path:
+def download_avatar(avatar_url: str, placeholder_img: Path) -> Union[BytesIO, Path]:
     """Download the binary content off of the given URL and return a bytes buffer of the same.
 
     Parameters
@@ -86,34 +75,13 @@ def create_mask(image: Image) -> Image:
     return alpha.resize(image.size, Image.LANCZOS)
 
 
-def create_image(
+def create_image_old(
     bg_size: tuple[int],
     bg_color: str,
     layer_config: LayerConfig,
     placeholder_img_path: Path = None,
     debug_img_path: Path = None,
 ) -> Image:
-    """Final call to translate the passed LayerConfig into a picture.
-
-    Parameters
-    ----------
-    bg_size : tuple[int]
-        Background's height and width in pixels.
-    bg_color : str
-        Background's color as hex string.
-    layer_config : LayerConfig
-        Final LayerConfig structure to translate.
-    placeholder_img_path : Path, optional
-        Local path passed to `download_avatar`, by default None
-    debug_img_path : Path, optional
-        Useful only in debugging.
-        The given image is used in place of actual avatars to save download time, by default None
-
-    Returns
-    -------
-    Image
-        A PIL.Image constructed from the LayerConfig.
-    """
 
     bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
     print("created background")
@@ -123,21 +91,29 @@ def create_image(
     for layer_idx in range(len(layer_config)):
         R, count, gap_size, users = layer_config[layer_idx]
         gaps_count = count - 1
-        circumference = 2 * math.pi * R
         base_usr_img_angle = 360 / count
-        usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
+        # circumference = 2 * math.pi * R
+        # usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
 
         # handle the central avatar size
         if layer_idx == 0:
             usr_img_hw = layer_config[1][0] + 40
 
         for user_idx in range(len(users)):
+
+            if layer_idx != 0:
+                # calc circumference according to nbr of holdings
+                circumference = 2 * math.pi * R
+                usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
+
             if debug_img_path:
                 avatar = Image.open(debug_img_path)
             else:
                 avatar = Image.open(
-                    download_avatar(users[user_idx]["avatar_url"], placeholder_img_path)
+                    #download_avatar(users[user_idx]["avatar_url"], placeholder_img_path)
+                    download_avatar(users[user_idx]["avatar_url"], "res/placeholder_avatar.png")
                 )
+
             avatar = avatar.convert("RGB").resize((usr_img_hw, usr_img_hw))
 
             angle = math.radians(base_usr_img_angle * user_idx + gap_size)
@@ -158,3 +134,61 @@ def create_image(
             )
 
     return bg
+
+
+from io import BytesIO
+
+def create_image_new(
+    bg_size: tuple[int],
+    bg_color: str,
+    layer_config: LayerConfig,
+    placeholder_img_path: Path = None,
+    debug_img_path: Path = None,
+) -> BytesIO:
+
+    bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
+    print("created background")
+
+    print("creating circles. might take time...")
+
+    for layer_idx in range(len(layer_config)):
+        R, count, gap_size, users = layer_config[layer_idx]
+        gaps_count = count - 1
+        base_usr_img_angle = 360 / count
+
+        if layer_idx == 0:
+            usr_img_hw = layer_config[1][0] + 40
+
+        for user_idx in range(len(users)):
+            if layer_idx != 0:
+                circumference = 2 * math.pi * R
+                usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
+
+            if debug_img_path:
+                avatar = Image.open(debug_img_path)
+            else:
+                avatar = Image.open(
+                    download_avatar(users[user_idx]["avatar_url"], "res/placeholder_avatar.png")
+                )
+
+            avatar = avatar.convert("RGB").resize((usr_img_hw, usr_img_hw))
+
+            angle = math.radians(base_usr_img_angle * user_idx + gap_size)
+
+            avatar_center_x = math.floor(math.cos(angle) * R + (bg.size[0] / 2))
+            avatar_center_y = math.floor(math.sin(angle) * R + (bg.size[1] / 2))
+
+            bg.paste(
+                avatar,
+                (
+                    math.floor(avatar_center_x - (usr_img_hw / 2)),
+                    math.floor(avatar_center_y - (usr_img_hw / 2)),
+                ),
+                create_mask(avatar),
+            )
+
+    # Save the image to a BytesIO object
+    image_bytes = BytesIO()
+    bg.save(image_bytes, format='PNG')
+
+    return image_bytes
