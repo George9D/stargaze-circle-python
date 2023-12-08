@@ -8,6 +8,8 @@ from PIL import Image
 from io import BytesIO
 import requests
 import os
+
+import functions as f
 import main
 
 if 'REDIS_URL' in os.environ:
@@ -220,28 +222,30 @@ app.clientside_callback(
     Output("collapse", "is_open")],
     inputs=[
     Input('generate-circle-btn', 'n_clicks'),
-    Input('bg-color-store', 'data')],
+    Input('change-bg-btn', 'n_clicks'),
+    ],
     state=[
+    State('bg-color-store', 'data'),
     State('image-store', 'data'),
     State('layer-config-store', 'data'),
     State('sg-wallet', 'value')],
     background=True,
     running=[
         (Output("generate-circle-btn", "disabled"), True, False),
+        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circle"]),
     ],
-    #manager=background_callback_manager,
 )
-def update_image(n_clicks, bg_color_data, current_image_data, layers, wallet):
+def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
     if bg_color_data:
         print(bg_color_data)
 
     # Check if an image is already loaded
-    if not current_image_data:
-        layers = main.get_layer_config(wallet)
-        image_data = main.create_image(layers, "rgba(255, 255, 255, 1)")
-        # image_data = create_image()
-    elif layers:
-        image_data = main.create_image(layers, bg_color_data['color'])
+    # if not current_image_data:
+    if ctx.triggered_id == "generate-circle-btn":
+        layers = f.get_layer_config(wallet)
+        image_data = f.create_image(layers, "rgba(255, 255, 255, 1)")
+    elif ctx.triggered_id == "change-bg-btn":
+        image_data = f.create_image(layers, bg_color_data['color'])
     else:
         current_image_bytes = base64.b64decode(current_image_data.split(',')[1])  # Decode base64
         current_img = Image.open(BytesIO(current_image_bytes)).convert('RGBA')
