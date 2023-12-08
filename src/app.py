@@ -135,7 +135,7 @@ app.layout = dbc.Container([
             ], justify="center", style={'margin-top': '10px'}),
         ], align="center"),
 
-    ], justify="center", style={'position': 'absolute', "height": "90vh", 'width': '100%'}),
+    ], justify="center", style={'position': 'absolute', "height": "90vh", 'width': '100%', 'margin-bottom': '20px'}),
 
     dbc.Row([
                 html.Footer([
