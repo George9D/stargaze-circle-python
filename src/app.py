@@ -93,20 +93,6 @@ app.layout = dbc.Container([
                                 html.Div([
                                     dbc.Row([
                                         dbc.Button(
-                                            children=["Change BG color"],
-                                            id="change-bg-btn",
-                                            download="stargaze_circle.png",
-                                            className="m-1",
-                                            color="primary",
-                                            n_clicks=0,
-                                        ),
-                                    ], justify="center")
-                                ], style={'width': '200px'})
-                            ], justify="around", style={'margin-top': '15px'}),
-                            dbc.Row([
-                                html.Div([
-                                    dbc.Row([
-                                        dbc.Button(
                                             children=["Download"],
                                             id="download-btn",
                                             download="stargaze_circle.png",
@@ -115,8 +101,9 @@ app.layout = dbc.Container([
                                             n_clicks=0,
                                         ),
                                     ], justify="center")
-                                ], style={'width': '450px'})
-                            ], justify="center", style={'margin-top': '15px'}),
+                                ], style={'width': '200px'})
+                            ], justify="around", style={'margin-top': '15px'}),
+
                         ],
                         id="collapse",
                         is_open=False,
@@ -212,35 +199,33 @@ app.clientside_callback(
 @app.callback(
     output=[
     Output('image-store', 'data'),
-    Output('layer-config-store', 'data'),
-    Output("collapse", "is_open")],
+    #Output('layer-config-store', 'data'),
+    Output("collapse", "is_open")
+    ],
     inputs=[
     Input('generate-circle-btn', 'n_clicks'),
-    Input('change-bg-btn', 'n_clicks'),
+    #Input('change-bg-btn', 'n_clicks'),
     ],
     state=[
     State('bg-color-store', 'data'),
     State('image-store', 'data'),
-    State('layer-config-store', 'data'),
+    #State('layer-config-store', 'data'),
     State('sg-wallet', 'value')],
     background=True,
     running=[
         (Output("generate-circle-btn", "disabled"), True, False),
-        (Output("change-bg-btn", "disabled"), True, False),
+        #(Output("change-bg-btn", "disabled"), True, False),
         (Output("download-btn", "disabled"), True, False),
         (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
     ],
 )
-def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
+def update_image(n_clicks, bg_color_data, current_image_data, wallet):
 
     if ctx.triggered_id == "generate-circle-btn":
-        if not layers:
-            layers = f.get_layer_config(wallet)
-
+        layers = f.get_layer_config(wallet)
         image_data = f.create_image(layers, None)
     elif ctx.triggered_id == "change-bg-btn":
-        if not layers:
-            layers = f.get_layer_config(wallet)
+        layers = f.get_layer_config(wallet)
 
         if bg_color_data:
             bg_color = bg_color_data['color']
@@ -270,7 +255,7 @@ def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data,
 
 
 
-    return [encoded_image, layers, True]
+    return [encoded_image, True]
 
 
 @app.callback(
@@ -323,7 +308,22 @@ def func(n_clicks, image_data):
 if __name__ == '__main__':
     app.run_server(debug=True)
 
-
+"""
+ dbc.Row([
+                                html.Div([
+                                    dbc.Row([
+                                        dbc.Button(
+                                            children=["Download"],
+                                            id="download-btn",
+                                            download="stargaze_circle.png",
+                                            className="m-1",
+                                            color="primary",
+                                            n_clicks=0,
+                                        ),
+                                    ], justify="center")
+                                ], style={'width': '450px'})
+                            ], justify="center", style={'margin-top': '15px'}),
+"""
 
 """
                             dbc.Row([
