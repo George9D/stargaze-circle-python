@@ -34,9 +34,9 @@ def get_layer_config(wallet):
 
         # change the radius in case wallet holds not enough to fill all circles
         if len(df) < 9:
-            Config.LAYER_CONFIG[1][0] = 285
-            Config.LAYER_CONFIG[1][1] = len(df) - 1
-            nbr_layers = 2
+            #Config.LAYER_CONFIG[1][0] = 285
+            #Config.LAYER_CONFIG[1][1] = len(df) - 1
+            nbr_layers = 1
         elif (len(df) > 9) & (len(df) < 24):
             Config.LAYER_CONFIG[1][0] = 250
             nbr_layers = 2
