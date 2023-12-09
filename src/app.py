@@ -96,7 +96,7 @@ app.layout = dbc.Container([
                             ], justify="center", style={'margin-top': '20px'}),
                         ],
                         id="collapse",
-                        is_open=True,
+                        is_open=False,
                     ),
                 ],
                     style={
