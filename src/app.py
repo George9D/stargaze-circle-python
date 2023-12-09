@@ -73,69 +73,49 @@ app.layout = dbc.Container([
                             n_clicks=0,
                         ),
                     ], justify="center")
-                ], style={'width': '450px'})
+                ], style={'width': '425px'})
             ], justify="center", style={'margin-top': '30px'}),
             dbc.Row([
                 html.Div([
                     dbc.Collapse(
                         children=[
-                            dbc.Card([
-                                dbc.CardImg(src="assets/stars-fx-a.jpg", top=True, id='image-display', bottom=True, style={'height': '425px'}),
-                            ],
-                                style={'margin-bottom': '20px', 'backgroundColor': "black"}
-                            ),
                             dbc.Row([
-                                html.Div([
-                                    dbc.Row([
-                                        dbc.Input(
-                                            type="color",
-                                            id="colorpicker",
-                                            value="#FFFFFF",
-                                            style={"height": 50, 'background-color': 'transparent',
-                                                   'display': 'inline-block', 'padding-left': '0', 'padding-right': '0'}
-                                        ),
-                                    ], justify="start")
-                                ], style={'width': '90px'}),
-                                html.Div([
-                                    dbc.Row([
-                                        dbc.Button(
-                                            children=["Change BG color"],
-                                            id="change-bg-btn",
-                                            download="stargaze_circle.png",
-                                            className="m-1",
-                                            color="primary",
-                                            n_clicks=0,
-                                        ),
-                                    ], justify="center")
-                                ], style={'width': '180px'}),
-                                html.Div([
-                                    dbc.Row([
-                                        dbc.Button(
-                                            children=["Download"],
-                                            id="download-btn",
-                                            download="stargaze_circle.png",
-                                            className="m-1",
-                                            color="primary",
-                                            n_clicks=0,
-                                        ),
-                                    ], justify="center")
-                                ], style={'width': '180px'})
-                            ], justify="around", style={'margin-top': '15px'}),
+                                    html.Img(id='image-display', style={'height': '450px', 'width': '500px'}),
+                            ], justify="center"),
+                            dbc.Row([
+                                    dbc.Button(
+                                        children=["Download"],
+                                        id="download-btn",
+                                        download="stargaze_circle.png",
+                                        className="m-1",
+                                        color="primary",
+                                        n_clicks=0,
+                                        style={'width': '425px'}
+                                    ),
+
+                            ], justify="center", style={'margin-top': '20px'}),
                         ],
                         id="collapse",
-                        is_open=False,
+                        is_open=True,
                     ),
                 ],
                     style={
-                        'margin-top': 20,
+                        'margin-top': 10,
                         'margin-bottom': 20,
-                        'width': '510px'
+                        'width': '450px'
                     }
                 ),
             ], justify="center", style={'margin-top': '10px'}),
         ], align="center"),
 
-    ], justify="center", style={'position': 'absolute', "height": "100vh", 'width': '100%', 'margin-bottom': '30px'}),
+    ], justify="center",
+        style={'position': 'absolute',
+               "height": "100vh",
+               'width': '100%',
+               'margin-bottom': '30px',
+               'margin-left': '5px',
+               'margin-right': '5px'}
+    ),
 
     dbc.Row([
                 html.Footer([
@@ -221,7 +201,7 @@ app.clientside_callback(
     ],
     inputs=[
     Input('generate-circle-btn', 'n_clicks'),
-    Input('change-bg-btn', 'n_clicks'),
+    #Input('change-bg-btn', 'n_clicks'),
     ],
     state=[
     State('bg-color-store', 'data'),
@@ -231,18 +211,18 @@ app.clientside_callback(
     background=True,
     running=[
         (Output("generate-circle-btn", "disabled"), True, False),
-        (Output("change-bg-btn", "disabled"), True, False),
+        #(Output("change-bg-btn", "disabled"), True, False),
         (Output("download-btn", "disabled"), True, False),
         (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
     ],
 )
-def update_image(n_clicks, n_clicks_download, bg_color_data, current_image_data, layers, wallet):
+def update_image(n_clicks, bg_color_data, current_image_data, layers, wallet):
 
     if ctx.triggered_id == "generate-circle-btn":
         if not layers:
             layers = f.get_layer_config(wallet)
 
-        image_data = f.create_image(layers, None)
+        image_data = f.create_image(layers, 'rgba(219,44,116,1)')
     elif ctx.triggered_id == "change-bg-btn":
         print("layers:", layers)
         if not layers:
@@ -331,125 +311,75 @@ if __name__ == '__main__':
 
 
 
+
 """
+dbc.Row([
+                html.Div([
+                    dbc.Collapse(
+                        children=[
                             dbc.Row([
-                                html.Div(
-                                    [
+                                    html.Img(id='image-display', style={'height': '500px', 'width': '500px'}),
+                            ], justify="center"),
+                            dbc.Row([
+                                html.Div([
+                                    dbc.Row([
                                         dbc.Input(
                                             type="color",
                                             id="colorpicker",
                                             value="#FFFFFF",
-                                            style={"width": 180, "height": 50, 'background-color': 'transparent', 'display': 'inline-block'} ,#'border-color': '#db2c74'
+                                            style={"height": 50, 'background-color': 'transparent',
+                                                   'display': 'inline-block', 'padding-left': '0', 'padding-right': '0'}
                                         ),
-                                    ], style={'display': 'inline-block', 'margin-right': '5px', 'width': '180px'}
-                                ),
+                                    ], justify="start")
+                                ], style={'width': '90px'}),
                                 html.Div([
-                                    dbc.Button(
-                                        children=["Change BG Color"],
-                                        id="bg-change-btn",
-                                        href="src/circles.png",
-                                        download="stargaze_circle.png",
-                                        className="m-1",
-                                        color="primary",
-                                        n_clicks=0)
-                                ], style={'width': '200px',
-                                           'margin-left': '15px',
-                                           'display': 'inline-block'}
-                                )
-                            ], justify="center"),
-                            dbc.Row([
-                                dbc.Col([
-                                    dbc.Button(
-                                        children=["Download"],
-                                        id="download-btn",
-                                        href="src/circles.png",
-                                        download="stargaze_circle.png",
-                                        className="m-1",
-                                        color="primary",
-                                        n_clicks=0,
-                                        style={'width': '200px'}
-                                    )
-                                ], align="center", xs=6, sm=6, md=6, lg=6, xl=6, xxl=6)
-                            ])
+                                    dbc.Row([
+                                        dbc.Button(
+                                            children=["Change BG color"],
+                                            id="change-bg-btn",
+                                            download="stargaze_circle.png",
+                                            className="m-1",
+                                            color="primary",
+                                            n_clicks=0,
+                                        ),
+                                    ], justify="center")
+                                ], style={'width': '150px'}),
+                                html.Div([
+                                    dbc.Row([
+                                        dbc.Button(
+                                            children=["Download"],
+                                            id="download-btn",
+                                            download="stargaze_circle.png",
+                                            className="m-1",
+                                            color="primary",
+                                            n_clicks=0,
+                                        ),
+                                    ], justify="center")
+                                ], style={'width': '150px'})
+                            ], justify="around", style={'margin-top': '15px'}),
+                        ],
+                        id="collapse",
+                        is_open=True,
+                    ),
+                ],
+                    style={
+                        'margin-top': 20,
+                        'margin-bottom': 20,
+                        'width': '450px'
+                    }
+                ),
+            ], justify="center", style={'margin-top': '10px'}),
 """
 
+
 """
-import base64
-from pathlib import Path
-
-import dash
-from dash import dcc, html
-from dash.dependencies import Input, Output, State
-import dash_daq as daq
-
-from PIL import Image
-from io import BytesIO
-import requests
-
-import main
-
-app = dash.Dash(__name__)
-
-app.layout = html.Div([
-    html.H1(id="header", children=["Image Background Color Changer"]),
-
-    html.Label("Choose Background Color:"),
-    daq.ColorPicker(
-        id='color-picker',
-        label='Color Picker',
-        value=dict(hex='#119DFF')
-    ),
-
-    dcc.Store(id='image-store', data=''),
-    dcc.Store(id='layer-config-store', data=''),
-
-    html.Div([
-        html.Img(id='image-display'),
-    ], style={'margin-top': 20})
-])
-
-
-def create_image():
-    image_data = main.main()
-    return image_data
-
-@app.callback(
-    Output('image-store', 'data'),
-    Input('color-picker', 'value'),
-    State('image-store', 'data'),
-    State('layer-config-store', 'data')
-)
-def update_image(background_color, current_image_data, layers):
-    # Check if an image is already loaded
-    if not current_image_data:
-        #layers = main.get_layer_config()
-        #image_data = main.create_image(layers, "rgba(255, 255, 255, 1)")
-        image_data = create_image()
-    else:
-        current_image_bytes = base64.b64decode(current_image_data.split(',')[1])  # Decode base64
-        # print(current_image_bytes)
-        current_img = Image.open(BytesIO(current_image_bytes)).convert('RGBA')
-
-        # Create a new image with the selected background color
-        new_img = Image.new(mode='RGBA', size=current_img.size, color=background_color['hex'])
-        #new_img.paste(current_img.convert('RGBA'), (0, 0), current_img.convert('RGBA'))
-
-        # Set the alpha channel of the original image to 255 (fully opaque)
-        current_img_with_alpha = current_img.copy()
-        current_img_with_alpha.putalpha(255)
-
-        # Paste the original image onto the new image with the desired background color
-        new_img.paste(current_img_with_alpha, (0, 0), current_img_with_alpha)
-
-
-        new_img.save("circles.png", "PNG")
-
-        # Save the new image to a BytesIO object
-        image_data = BytesIO()
-        new_img.save(image_data, format='PNG')
-
-    # Convert the BytesIO image data to base64 for storage in the dcc.Store
-    encoded_image = f"data:image/png;base64,{base64.b64encode(image_data.getvalue()).decode()}"
-
-    return encoded_image, layers
+                            dbc.Card([
+                                dbc.CardImg(#src="assets/stars-fx-a.jpg",
+                                            top=True,
+                                            id='image-display',
+                                            bottom=True,
+                                            style={'height': '425px'}),
+                            ],
+                                style={'margin-bottom': '20px', 'backgroundColor': "black", 'border-color': 'black'}
+                            ),
 """
