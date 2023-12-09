@@ -3,7 +3,7 @@ from pathlib import Path
 import src.exceptions as exceptions
 from src.constants import LayerConfig
 from src.data_collection import collect_data
-from src.image_creation import build_layer_config, create_image_new
+from src.image_creation import build_layer_config, create_image_new, create_image_new_optimized
 import time
 from src.encoding import encode_img_to_b64
 

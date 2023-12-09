@@ -75,6 +75,26 @@ def create_mask(image: Image) -> Image:
     ImageDraw.Draw(alpha).pieslice([(0, 0), mask_size], 0, 360, fill=255)
     return alpha.resize(image.size, Image.LANCZOS)
 
+
+def create_mask_new(h, w) -> Image:
+    """Return a centered circular mask for any image.
+
+    Parameters
+    ----------
+    image : Image
+        Image to return the mask for.
+
+    Returns
+    -------
+    Image
+        Mask Image.
+    """
+
+    mask_size = (h * 3, w * 3)
+    alpha = Image.new("L", mask_size, 0)
+    ImageDraw.Draw(alpha).pieslice([(0, 0), mask_size], 0, 360, fill=255)
+    return alpha.resize((h, w), Image.LANCZOS)
+
 def create_image_new(
     bg_size: tuple[int],
     bg_color: str,
@@ -93,17 +113,20 @@ def create_image_new(
     for layer_idx in range(len(layer_config)):
 
         R, count, gap_size, users = layer_config[layer_idx]
+
+        # check if there are enough collections to create a full circle
+        if len(users) < count:
+            break
+
         gaps_count = count - 1
         base_usr_img_angle = 360 / count
 
         if layer_idx == 0:
             usr_img_hw = layer_config[1][0] + 40
-
+        else:
+            circumference = 2 * math.pi * R
+            usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
         for user_idx in range(len(users)):
-            if layer_idx != 0:
-                circumference = 2 * math.pi * R
-                usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
-
             if debug_img_path:
                 avatar = Image.open(debug_img_path)
             else:
@@ -133,6 +156,66 @@ def create_image_new(
 
     return image_bytes
 
+
+def create_image_new_optimized(
+    bg_size: tuple[int],
+    bg_color: str,
+    layer_config: LayerConfig,
+    placeholder_img_path: Path = None,
+    debug_img_path: Path = None,
+) -> BytesIO:
+
+    if bg_color:
+        bg = Image.new(mode="RGB", size=bg_size, color=bg_color)
+    else:
+        bg = Image.open("assets/stars-fx-a.jpg").resize(bg_size)
+
+    print("creating circles. might take time...")
+
+    for layer_idx, (R, count, gap_size, users) in enumerate(layer_config):
+        gaps_count = count - 1
+
+        if layer_idx == 0:
+            base_usr_img_angle = 360 / count
+            usr_img_hw = layer_config[1][0] + 40
+        else:
+            circumference = 2 * math.pi * R
+            usr_img_hw = math.ceil(((circumference - (gaps_count * gap_size)) / count))
+
+        # Resize mask in advance
+        mask = create_mask_new(usr_img_hw, usr_img_hw)
+
+        # Precompute trigonometric values
+        angles = [math.radians(base_usr_img_angle * i) for i in range(count)]
+
+        for user_idx, user_data in enumerate(users):
+
+
+            if debug_img_path:
+                avatar = Image.open(debug_img_path).convert("RGB").resize((usr_img_hw, usr_img_hw))
+            else:
+                avatar_url = user_data["avatar_url"]
+                avatar = Image.open(download_avatar(avatar_url, "assets/placeholder_avatar.png")).convert("RGB").resize((usr_img_hw, usr_img_hw))
+
+            angle = angles[user_idx]
+
+            avatar_center_x = math.ceil(math.cos(angle) * R + (bg.size[0] / 2))
+            avatar_center_y = math.ceil(math.sin(angle) * R + (bg.size[1] / 2))
+
+            bg.paste(
+                avatar,
+                (
+                    avatar_center_x - (usr_img_hw // 2),
+                    avatar_center_y - (usr_img_hw // 2),
+                ),
+                mask,
+            )
+
+    # Save the image to a BytesIO object
+    image_bytes = BytesIO()
+    bg.save(image_bytes, format='PNG')
+
+    return image_bytes
 
 """
     start_time = time.time()
