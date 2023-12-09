@@ -219,6 +219,3 @@ def collect_data(wallet: str) -> DataFrame:
     df = pd.concat([df_center_user, df_collection_holdings], ignore_index=True)
 
     return df
-
-
-get_wallet_tokens_new("stars1adr72atmnzzvqlfe574c3qk5s9zxk0l2gq2rz5")

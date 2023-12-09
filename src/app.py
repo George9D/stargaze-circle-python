@@ -224,7 +224,6 @@ def update_image(n_clicks, bg_color_data, current_image_data, layers, wallet):
 
         image_data = f.create_image(layers, 'rgba(219,44,116,1)')
     elif ctx.triggered_id == "change-bg-btn":
-        print("layers:", layers)
         if not layers:
             layers = f.get_layer_config(wallet)
 

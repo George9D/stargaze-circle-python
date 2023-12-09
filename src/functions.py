@@ -32,8 +32,24 @@ class Config:
 def get_layer_config(wallet):
         df = collect_data(wallet)
 
+        # change the radius in case wallet holds not enough to fill all circles
+        if len(df) < 9:
+            Config.LAYER_CONFIG[1][0] = 285
+            Config.LAYER_CONFIG[1][1] = len(df) - 1
+            nbr_layers = 2
+        elif (len(df) > 9) & (len(df) < 24):
+            Config.LAYER_CONFIG[1][0] = 250
+            nbr_layers = 2
+        elif (len(df) > 24) & (len(df) < 50):
+            Config.LAYER_CONFIG[1][0] = 225
+            Config.LAYER_CONFIG[2][0] = 375
+            nbr_layers = 3
+        else:
+            nbr_layers = 4
+
+
         # new version - pandas df
-        lc = build_layer_config(df, Config.LAYER_CONFIG)
+        lc = build_layer_config(df, Config.LAYER_CONFIG[:nbr_layers])
 
         return lc
 
