@@ -83,7 +83,6 @@ def get_profil_pict(address):
     '''
 
     r = requests.post(url=url, json={"query": body})
-    print("response get_profil_pict:", r.text)
 
     if r.status_code == 200:
         data = r.json()
@@ -105,7 +104,6 @@ def get_wallet_tokens(address) -> DataFrame:
     df = pd.DataFrame()
 
     while True:
-        print(offset)
         body = ''' 
                     {
                       tokens(ownerAddrOrName: "''' + str(address) + '''", limit: 100, offset: ''' + str(offset) + ''') {
