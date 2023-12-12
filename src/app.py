@@ -206,7 +206,6 @@ app.clientside_callback(
     state=[
     State('bg-color-store', 'data'),
     State('image-store', 'data'),
-    State('layer-config-store', 'data'),
     State('sg-wallet', 'value')],
     background=True,
     running=[
@@ -216,7 +215,7 @@ app.clientside_callback(
         (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
     ],
 )
-def update_image(n_clicks, bg_color_data, current_image_data, layers, wallet):
+def update_image(n_clicks, bg_color_data, current_image_data, wallet):
 
     if ctx.triggered_id == "generate-circle-btn":
         layers = f.get_layer_config(wallet)
