@@ -73,14 +73,14 @@ app.layout = dbc.Container([
                             n_clicks=0,
                         ),
                     ], justify="center")
-                ], style={'width': '425px'})
+                ], style={'width': '400px'})
             ], justify="center", style={'margin-top': '30px'}),
             dbc.Row([
                 html.Div([
                     dbc.Collapse(
                         children=[
                             dbc.Row([
-                                    html.Img(id='image-display', style={'height': '450px', 'width': '500px'}),
+                                    html.Img(id='image-display', style={'height': '450px', 'width': '450px'}),
                             ], justify="center"),
                             dbc.Row([
                                     dbc.Button(
@@ -90,7 +90,7 @@ app.layout = dbc.Container([
                                         className="m-1",
                                         color="primary",
                                         n_clicks=0,
-                                        style={'width': '425px'}
+                                        style={'width': '400px'}
                                     ),
 
                             ], justify="center", style={'margin-top': '20px'}),
@@ -159,7 +159,7 @@ app.layout = dbc.Container([
             ], align="bottom", justify="around"),
 
     dcc.Store(id='image-store', data=''),
-    dcc.Store(id='layer-config-store', data=''),
+    # dcc.Store(id='layer-config-store', data=''),
     dcc.Store(id='bg-color-store', data=''),
 
     dcc.Download(id="download-image")
@@ -196,7 +196,7 @@ app.clientside_callback(
 @app.callback(
     output=[
     Output('image-store', 'data'),
-    Output('layer-config-store', 'data'),
+    #Output('layer-config-store', 'data'),
     Output("collapse", "is_open")
     ],
     inputs=[
@@ -219,13 +219,10 @@ app.clientside_callback(
 def update_image(n_clicks, bg_color_data, current_image_data, layers, wallet):
 
     if ctx.triggered_id == "generate-circle-btn":
-        if not layers:
-            layers = f.get_layer_config(wallet)
-
+        layers = f.get_layer_config(wallet)
         image_data = f.create_image(layers, 'rgba(219,44,116,1)')
     elif ctx.triggered_id == "change-bg-btn":
-        if not layers:
-            layers = f.get_layer_config(wallet)
+        layers = f.get_layer_config(wallet)
 
         if bg_color_data:
             bg_color = bg_color_data['color']
@@ -255,7 +252,7 @@ def update_image(n_clicks, bg_color_data, current_image_data, layers, wallet):
 
 
 
-    return [encoded_image, layers, True]
+    return [encoded_image, True]
 
 
 @app.callback(

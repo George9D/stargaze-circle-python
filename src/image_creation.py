@@ -19,11 +19,11 @@ def build_layer_config(data, layer_config: LayerConfig) -> list:
     #layer_config[x][1] contains the nbr of collections contained in this layer
 
     prev_col_idx = 1
-    layer_config[0].append(data[0:1].to_dict(orient="records"))
+    layer_config[0][3] = data[0:1].to_dict(orient="records")
 
     for idx in range(1, len(layer_config)):
         cur_col_idx = prev_col_idx + layer_config[idx][1]
-        layer_config[idx].append(data[prev_col_idx:cur_col_idx].to_dict(orient="records"))
+        layer_config[idx][3] = data[prev_col_idx:cur_col_idx].to_dict(orient="records")
         prev_col_idx = cur_col_idx
 
     return layer_config
@@ -112,7 +112,7 @@ def create_image_new(
 
     for layer_idx in range(len(layer_config)):
 
-        print(layer_config[layer_idx])
+        # print(layer_config[layer_idx])
 
         R, count, gap_size, users = layer_config[layer_idx]
 

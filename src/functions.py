@@ -9,28 +9,26 @@ from src.encoding import encode_img_to_b64
 
 
 class Config:
-    # Twitter WALLET to scan
-    # WALLET = "stars1xuwl7x8htyl26t7pe3l0x6auj3j9jwd2k26qx5"
     WALLET = "stars1adr72atmnzzvqlfe574c3qk5s9zxk0l2gq2rz5"
-    # WALLET = "stars1p655nr52wepstj39jr3skwv6nkmdrfka3e96ym"
-    # hex of the desired background color
     # BG_CLR = "#448dd9"
     BG_CLR = "rgba(255, 255, 255, 0)"
-    # (height, width)
     BG_SIZE = (1000, 1000)
     # layer config constants
     # [[layer radius, number of users in the layer, gap size], ...]
     LAYER_CONFIG: LayerConfig = [
-        [0, 1, 0],
-        [200, 8, 25],
-        [330, 15, 25],
-        [450, 26, 20],
+        [0, 1, 0, []],
+        [200, 8, 25, []],
+        [330, 15, 25, []],
+        [450, 26, 20, []],
     ]
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
 def get_layer_config(wallet):
         df = collect_data(wallet)
+
+        for i in range(4):
+            Config.LAYER_CONFIG[i][3] = []
 
         # change the radius in case wallet holds not enough to fill all circles
         if len(df) < 9:
@@ -45,8 +43,10 @@ def get_layer_config(wallet):
             Config.LAYER_CONFIG[2][0] = 375
             nbr_layers = 3
         else:
+            Config.LAYER_CONFIG[1][0] = 200
+            Config.LAYER_CONFIG[2][0] = 330
+            Config.LAYER_CONFIG[3][0] = 450
             nbr_layers = 4
-
 
         # new version - pandas df
         lc = build_layer_config(df, Config.LAYER_CONFIG[:nbr_layers])
