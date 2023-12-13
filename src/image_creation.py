@@ -114,20 +114,15 @@ def create_image_new(
 
         # print(layer_config[layer_idx])
 
-        R, count, gap_size, users = layer_config[layer_idx]
-
-        # check if there are enough collections to create a full circle
-        #if len(users) < count:
-        #    break
-
-        gaps_count = count - 1
+        R, count, gap_size, users, factor = layer_config[layer_idx]
+        gaps_count = count + factor
         base_usr_img_angle = 360 / count
 
         if layer_idx == 0:
             usr_img_hw = layer_config[1][0] + 40
         else:
             circumference = 2 * math.pi * R
-            usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / count))
+            usr_img_hw = math.floor(((circumference - (gaps_count * gap_size)) / (count + factor)))
         for user_idx in range(len(users)):
             if debug_img_path:
                 avatar = Image.open(debug_img_path)

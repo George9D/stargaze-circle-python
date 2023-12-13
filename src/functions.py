@@ -16,11 +16,20 @@ class Config:
     # layer config constants
     # [[layer radius, number of users in the layer, gap size], ...]
     LAYER_CONFIG: LayerConfig = [
-        [0, 1, 0, []],
-        [200, 8, 25, []],
-        [330, 15, 25, []],
-        [450, 26, 20, []],
+            [0, 1, 0, [], 0],
+            [200, 7, 25, [], 1],
+            [330, 13, 25, [], 2],
+            [450, 21, 20, [], 5],
+        ]
+
+"""    
+    LAYER_CONFIG: LayerConfig = [
+        [0, 1, 0, [], 0],
+        [200, 8, 25, [], 0],
+        [330, 15, 25, [], 0],
+        [450, 26, 20, [], 0],
     ]
+"""
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
@@ -34,7 +43,7 @@ def get_layer_config(wallet):
         if len(df) < 9:
             #Config.LAYER_CONFIG[1][0] = 285
             #Config.LAYER_CONFIG[1][1] = len(df) - 1
-            nbr_layers = 1
+            nbr_layers = 2
         elif (len(df) > 9) & (len(df) < 24):
             Config.LAYER_CONFIG[1][0] = 250
             nbr_layers = 2
