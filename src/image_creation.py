@@ -116,7 +116,7 @@ def create_image_new(
 
         R, count, gap_size, users, factor = layer_config[layer_idx]
         gaps_count = count + factor
-        base_usr_img_angle = 360 / count
+        base_usr_img_angle = 360 / len(users)
 
         if layer_idx == 0:
             usr_img_hw = layer_config[1][0] + 40
