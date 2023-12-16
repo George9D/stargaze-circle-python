@@ -10690,6 +10690,6 @@ textarea.form-control-lg {
 /* Media query for smaller screens (e.g., mobile devices) */
 @media screen and (max-width: 600px) {
     .Container {
-        width: 100%;
+        width: 90%;
     }
 }
