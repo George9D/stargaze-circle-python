@@ -48,7 +48,7 @@ colorpicker = html.Div(
 
 app.layout = dbc.Container([
     dbc.Row([
-        dbc.Col([
+        html.Div([
             dbc.Row([
                 html.Div([
                     dbc.Row([
@@ -84,14 +84,15 @@ app.layout = dbc.Container([
                             n_clicks=0,
                         ),
                     ], justify="center")
-                ], style={'width': '400px'})
+                ],# style={'width': '400px'}
+            )
             ], justify="center", style={'margin-top': '30px'}),
             dbc.Row([
                 html.Div([
                     dbc.Collapse(
                         children=[
                             dbc.Row([
-                                    html.Img(id='image-display', style={'height': '450px', 'width': '450px'}),
+                                    html.Img(id='image-display', style={'height': '450px'}),
                             ], justify="center"),
                             dbc.Row([
                                     dbc.Button(
@@ -101,7 +102,7 @@ app.layout = dbc.Container([
                                         className="m-1",
                                         color="primary",
                                         n_clicks=0,
-                                        style={'width': '400px'}
+                                        #style={'width': '400px'}
                                     ),
 
                             ], justify="center", style={'margin-top': '20px'}),
@@ -113,11 +114,11 @@ app.layout = dbc.Container([
                     style={
                         'margin-top': 10,
                         'margin-bottom': 20,
-                        'width': '450px'
+                        #'width': '450px'
                     }
                 ),
             ], justify="center", style={'margin-top': '10px'}),
-        ], align="center"),
+        ], className="Container"),
 
     ], justify="center",
         style={'position': 'absolute',
@@ -125,7 +126,7 @@ app.layout = dbc.Container([
                'width': '100%',
                'margin-bottom': '30px',
                'margin-left': '5px',
-               'margin-right': '5px'}
+               'margin-right': '5px'},
     ),
 
     dbc.Row([
@@ -164,7 +165,7 @@ app.layout = dbc.Container([
                                ),
                     ], width=4, className="text-end", id="footer")
                 ],
-                    className="footer text-inverse text-center pt-2 hstack",
+                    className="text-inverse text-center pt-2 hstack",
                     style={'position': 'fixed', 'bottom': 0, 'background-color': 'black'},
                 ),
             ], align="bottom", justify="around"),
@@ -218,13 +219,13 @@ app.clientside_callback(
     State('bg-color-store', 'data'),
     State('image-store', 'data'),
     State('sg-wallet', 'value')],
-    #background=True,
-    #running=[
-    #    (Output("generate-circle-btn", "disabled"), True, False),
-    #    #(Output("change-bg-btn", "disabled"), True, False),
-    #    (Output("download-btn", "disabled"), True, False),
-    #    (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
-    #],
+    background=True,
+    running=[
+        (Output("generate-circle-btn", "disabled"), True, False),
+        #(Output("change-bg-btn", "disabled"), True, False),
+        (Output("download-btn", "disabled"), True, False),
+        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
+    ],
 )
 def update_image(n_clicks, bg_color_data, current_image_data, wallet):
     address = f.check_if_wallet_exists(wallet)

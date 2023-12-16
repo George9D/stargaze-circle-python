@@ -151,7 +151,7 @@ def check_if_wallet_exists(input: str):
             return False
         elif input in data['address'].values:
             return data[data['address'] == input]['address'].values[0]
-        elif input in data['name.name'].values:
+        elif "name.name" in data.keys() and input in data['name.name'].values:
             return data[data['name.name'] == input]['address'].values[0]
         else:
             return False
