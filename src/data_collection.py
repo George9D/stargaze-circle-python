@@ -182,7 +182,6 @@ def get_wallet_tokens_new(address) -> DataFrame:
             inplace=True
         )
         data.fillna(0, inplace=True)
-        data.to_csv("df.csv")
         return data
 
 
@@ -201,7 +200,7 @@ def collect_data(wallet: str) -> DataFrame:
     # - the user (address + profile pict link)
     # - all collections s/he is holding currently + nbr of respective NFTs
 
-    address = verify_wallet(wallet)
+    address = wallet
 
 
     # create a df for the user

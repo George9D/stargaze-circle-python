@@ -1,12 +1,16 @@
 import json
 from pathlib import Path
+
+import numpy as np
+
 import src.exceptions as exceptions
 from src.constants import LayerConfig
 from src.data_collection import collect_data
 from src.image_creation import build_layer_config, create_image_new, create_image_new_optimized
 import time
 from src.encoding import encode_img_to_b64
-
+import requests
+import pandas as pd
 
 class Config:
     WALLET = "stars1adr72atmnzzvqlfe574c3qk5s9zxk0l2gq2rz5"
@@ -30,6 +34,8 @@ class Config:
         [450, 26, 20, [], 0],
     ]
 """
+
+graphQLEndpoint = "https://graphql.mainnet.stargaze-apis.com/graphql"
 
 # -------------------------------------------------------------------------------------------------------------------- #
 
@@ -69,3 +75,127 @@ def create_image(lc, bg_color):
     return image
 
 # -------------------------------------------------------------------------------------------------------------------- #
+
+
+def query_wallet(string):
+    url = graphQLEndpoint
+    body = ''' 
+                    {
+                      wallets(searchQuery: "''' + str(string) + '''") {
+                          wallets {
+                              address
+                              name {
+                                associatedAddr
+                                name
+                              }
+                            }
+                      }
+                    }
+        '''
+
+    r = requests.post(url=url, json={"query": body})
+
+    if r.status_code == 200:
+        data = r.json()
+        data = json.dumps(data)
+        data = json.loads(data)
+
+        data = pd.json_normalize(data['data']['wallets']['wallets'])
+        wallets = []
+
+        data.sort_values(by="address", inplace=True)
+
+        for idx, d in data.iterrows():
+            # check if name exists, if so return name, else the address
+            if d['name.name'] is np.NAN:
+                wallets.append(d['address'])
+            else:
+                # address = data['data']['wallets']['wallets']['name']['associatedAddr']
+                wallets.append(d['name.name'])
+
+        return wallets
+
+
+def check_if_wallet_exists(input: str):
+    url = graphQLEndpoint
+
+    # check if .stars ending and remove
+    if input[-6:] == ".stars":
+        input = input[:-6]
+
+    body = ''' 
+                    {
+                      wallets(searchQuery: "''' + input + '''") {
+                          wallets {
+                              address
+                              name {
+                                associatedAddr
+                                name
+                              }
+                            }
+                      }
+                    }
+        '''
+
+    r = requests.post(url=url, json={"query": body})
+
+    if r.status_code == 200:
+        data = r.json()
+        data = json.dumps(data)
+        data = json.loads(data)
+
+        data = pd.json_normalize(data['data']['wallets']['wallets'])
+
+        # check if name/address exists and is unique
+        if data.empty:
+            return False
+        elif input in data['address'].values:
+            return data[data['address'] == input]['address'].values[0]
+        elif input in data['name.name'].values:
+            return data[data['name.name'] == input]['address'].values[0]
+        else:
+            return False
+
+print(check_if_wallet_exists("george9d.stars"))
+
+"""
+
+def get_traits(input: str) -> pd.DataFrame:
+    url = "https://constellations-api.mainnet.stargaze-apis.com/graphql"
+
+    body = ''' 
+                    {
+                      collectionTraits(collectionAddr: "stars1yr75f44g8usydwk0cye355aze9v92n32dagkr6nxkycq0ehd2ufs2692sh"){
+                        name,
+                        values{
+                          value
+                        }
+                      }
+                    }
+        '''
+
+    r = requests.post(url=url, json={"query": body})
+
+    if r.status_code == 200:
+        data = r.json()
+        data = json.dumps(data)
+        data = json.loads(data)
+
+        df = pd.json_normalize(data['data']['collectionTraits'], "values", ['name'])
+        #df = df.pivot(columns="name", values="value")
+
+        print(df)
+
+
+Query to get holders + tokenIds for specific trait:
+
+	tokens(collectionAddr: "stars1yr75f44g8usydwk0cye355aze9v92n32dagkr6nxkycq0ehd2ufs2692sh",
+    filterByTraits: {name: "Tees", value: "Poncho"}, offset: 0, limit: 100){
+      tokens{
+        tokenId
+        ownerAddr
+      }
+  }
+
+"""
+

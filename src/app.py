@@ -45,6 +45,7 @@ colorpicker = html.Div(
 )
 
 
+
 app.layout = dbc.Container([
     dbc.Row([
         dbc.Col([
@@ -64,6 +65,16 @@ app.layout = dbc.Container([
                                                        '-0.1rem -0.01rem 0.3rem rgb(92,92,100)'},
                                   ),
                     ], style={'margin-bottom': 10}),
+                    dbc.Row([
+                        dbc.Alert(
+                            "Invalid Stargaze address or name!",
+                            id="alert-auto",
+                            is_open=False,
+                            color="danger",
+                            duration=4000,
+                            style={'margin-top': '8px'}
+                        ),
+                    ]),
                     dbc.Row([
                         dbc.Button(
                             children=["Generate Stargaze Circle"],
@@ -153,7 +164,7 @@ app.layout = dbc.Container([
                                ),
                     ], width=4, className="text-end", id="footer")
                 ],
-                    className="text-inverse text-center pt-2 hstack",
+                    className="footer text-inverse text-center pt-2 hstack",
                     style={'position': 'fixed', 'bottom': 0, 'background-color': 'black'},
                 ),
             ], align="bottom", justify="around"),
@@ -207,51 +218,52 @@ app.clientside_callback(
     State('bg-color-store', 'data'),
     State('image-store', 'data'),
     State('sg-wallet', 'value')],
-    background=True,
-    running=[
-        (Output("generate-circle-btn", "disabled"), True, False),
-        #(Output("change-bg-btn", "disabled"), True, False),
-        (Output("download-btn", "disabled"), True, False),
-        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
-    ],
+    #background=True,
+    #running=[
+    #    (Output("generate-circle-btn", "disabled"), True, False),
+    #    #(Output("change-bg-btn", "disabled"), True, False),
+    #    (Output("download-btn", "disabled"), True, False),
+    #    (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
+    #],
 )
 def update_image(n_clicks, bg_color_data, current_image_data, wallet):
+    address = f.check_if_wallet_exists(wallet)
+    if address:
+        if ctx.triggered_id == "generate-circle-btn":
+            layers = f.get_layer_config(address)
+            image_data = f.create_image(layers, 'rgba(219,44,116,1)')
+        elif ctx.triggered_id == "change-bg-btn":
+            layers = f.get_layer_config(address)
 
-    if ctx.triggered_id == "generate-circle-btn":
-        layers = f.get_layer_config(wallet)
-        image_data = f.create_image(layers, 'rgba(219,44,116,1)')
-    elif ctx.triggered_id == "change-bg-btn":
-        layers = f.get_layer_config(wallet)
+            if bg_color_data:
+                bg_color = bg_color_data['color']
+            else:
+                bg_color = 'rgba(255, 255, 255, 1)'
 
-        if bg_color_data:
-            bg_color = bg_color_data['color']
+            image_data = f.create_image(layers, bg_color)
         else:
-            bg_color = 'rgba(255, 255, 255, 1)'
+            current_image_bytes = base64.b64decode(current_image_data.split(',')[1])
+            current_img = Image.open(BytesIO(current_image_bytes)).convert('RGBA')
 
-        image_data = f.create_image(layers, bg_color)
+            # Create a new image with the selected background color
+            new_img = Image.new(mode='RGBA', size=current_img.size, color=bg_color_data['color'])
+
+            # Composite the original image onto the new image
+            result_img = Image.alpha_composite(new_img, current_img)
+
+            # Save the resulting image to a BytesIO object
+            image_data = BytesIO()
+            result_img.save(image_data, format='PNG')
+
+            # Save the resulting image to a file
+            result_img.save(filepath, "PNG")
+
+        # Convert the BytesIO image data to base64 for storage in the dcc.Store
+        encoded_image = f"data:image/png;base64,{base64.b64encode(image_data.getvalue()).decode()}"
+
+        return [encoded_image, True]
     else:
-        current_image_bytes = base64.b64decode(current_image_data.split(',')[1])
-        current_img = Image.open(BytesIO(current_image_bytes)).convert('RGBA')
-
-        # Create a new image with the selected background color
-        new_img = Image.new(mode='RGBA', size=current_img.size, color=bg_color_data['color'])
-
-        # Composite the original image onto the new image
-        result_img = Image.alpha_composite(new_img, current_img)
-
-        # Save the resulting image to a BytesIO object
-        image_data = BytesIO()
-        result_img.save(image_data, format='PNG')
-
-        # Save the resulting image to a file
-        result_img.save(filepath, "PNG")
-
-    # Convert the BytesIO image data to base64 for storage in the dcc.Store
-    encoded_image = f"data:image/png;base64,{base64.b64encode(image_data.getvalue()).decode()}"
-
-
-
-    return [encoded_image, True]
+        return [False, False]
 
 
 @app.callback(
@@ -283,6 +295,31 @@ def update_download_button(image_data):
 
     return f'data:application/octet-stream;base64,{base64.b64encode(image_io.getvalue()).decode()}'
 
+
+@app.callback(
+    Output('sg-wallet', 'invalid'),
+    Output("alert-auto", "is_open"),
+    Input('generate-circle-btn', 'n_clicks'),
+    State('sg-wallet', 'value'),
+)
+def check_input(n_clicks, value):
+
+    if f.check_if_wallet_exists(value):
+        return False, False
+    else:
+        return True, True
+
+
+"""@app.callback(
+    Output('wallet-1', 'options'),
+    Input('wallet-1', 'search_value')
+)
+def load_collection_names_dropdown(value):
+    print(value)
+    addresses = f.query_wallet(value)
+    print(addresses)
+    return addresses
+"""
 
 """@app.callback(
     Output("download-image", "data"),
