@@ -169,6 +169,7 @@ app.layout = dbc.Container([
             ], align="bottom", justify="around"),
 
     dcc.Store(id='image-store', data=''),
+    dcc.Store(id='address-store', data=''),
     # dcc.Store(id='layer-config-store', data=''),
     dcc.Store(id='bg-color-store', data=''),
 
@@ -211,7 +212,8 @@ app.clientside_callback(
     Output("collapse", "is_open")
     ],
     inputs=[
-    Input('generate-circle-btn', 'n_clicks'),
+    Input('address-store', 'data'),
+    #Input('generate-circle-btn', 'n_clicks'),
     #Input('change-bg-btn', 'n_clicks'),
     ],
     state=[
@@ -226,9 +228,11 @@ app.clientside_callback(
         (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
     ],
 )
-def update_image(n_clicks, bg_color_data, current_image_data, wallet):
-    address = f.check_if_wallet_exists(wallet)
+def update_image(address, bg_color_data, current_image_data, wallet):
     if address:
+        layers = f.get_layer_config(address)
+        image_data = f.create_image(layers, 'rgba(219,44,116,1)')
+        """
         if ctx.triggered_id == "generate-circle-btn":
             layers = f.get_layer_config(address)
             image_data = f.create_image(layers, 'rgba(219,44,116,1)')
@@ -257,6 +261,7 @@ def update_image(n_clicks, bg_color_data, current_image_data, wallet):
 
             # Save the resulting image to a file
             result_img.save(filepath, "PNG")
+        """
 
         # Convert the BytesIO image data to base64 for storage in the dcc.Store
         encoded_image = f"data:image/png;base64,{base64.b64encode(image_data.getvalue()).decode()}"
@@ -299,15 +304,16 @@ def update_download_button(image_data):
 @app.callback(
     Output('sg-wallet', 'invalid'),
     Output("alert-auto", "is_open"),
+    Output("address-store", "data"),
     Input('generate-circle-btn', 'n_clicks'),
     State('sg-wallet', 'value'),
 )
 def check_input(n_clicks, value):
-
-    if f.check_if_wallet_exists(value):
-        return False, False
+    address = f.check_if_wallet_exists(value)
+    if address:
+        return False, False, address
     else:
-        return True, True
+        return True, True, ""
 
 
 """@app.callback(
