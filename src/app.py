@@ -307,13 +307,14 @@ def update_download_button(image_data):
     Output("address-store", "data"),
     Input('generate-circle-btn', 'n_clicks'),
     State('sg-wallet', 'value'),
+    State('address-store', 'data'),
 )
-def check_input(n_clicks, value):
+def check_input(n_clicks, value, data):
     address = f.check_if_wallet_exists(value)
     if address:
         return False, False, address
     else:
-        return True, True, ""
+        return True, True, data
 
 
 """@app.callback(
