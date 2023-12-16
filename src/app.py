@@ -124,9 +124,8 @@ app.layout = dbc.Container([
         style={'position': 'absolute',
                "height": "100vh",
                'width': '100%',
-               'margin-bottom': '30px',
-               'margin-left': '5px',
-               'margin-right': '5px'},
+               'padding': '5px'
+               },
     ),
 
     dbc.Row([
@@ -177,6 +176,7 @@ app.layout = dbc.Container([
     dcc.Download(id="download-image")
 
 ], fluid=True, style={"height": "100vh",
+                      'width': '100%',
                       'position': 'absolute',
                       'background-image': 'url(assets/stars1.jpeg)',
                       'background-repreat': 'no-repeat',
