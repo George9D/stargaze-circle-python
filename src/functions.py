@@ -156,10 +156,6 @@ def check_if_wallet_exists(input: str):
         else:
             return False
 
-print(check_if_wallet_exists("george9d.stars"))
-
-"""
-
 def get_traits(input: str) -> pd.DataFrame:
     url = "https://constellations-api.mainnet.stargaze-apis.com/graphql"
 
@@ -187,15 +183,38 @@ def get_traits(input: str) -> pd.DataFrame:
         print(df)
 
 
-Query to get holders + tokenIds for specific trait:
+def get_holder_traits(input: str, trait: str, value: str) -> pd.DataFrame:
+    url = "https://constellations-api.mainnet.stargaze-apis.com/graphql"
+    offset = 0
+    DF = pd.DataFrame()
 
-	tokens(collectionAddr: "stars1yr75f44g8usydwk0cye355aze9v92n32dagkr6nxkycq0ehd2ufs2692sh",
-    filterByTraits: {name: "Tees", value: "Poncho"}, offset: 0, limit: 100){
-      tokens{
-        tokenId
-        ownerAddr
-      }
-  }
+    while True:
+        body = ''' 
+                        {
+                        tokens(collectionAddr: "''' + input + '''",
+                            filterByTraits: {name: "''' + trait + '''", value: "''' + value + '''"}, offset: ''' + str(offset) + ''', limit: 100){
+                              tokens{
+                                tokenId
+                                ownerAddr
+                              }
+                          }
+                        }
+            '''
 
-"""
+        r = requests.post(url=url, json={"query": body})
+
+        if r.status_code == 200:
+            data = r.json()
+            data = json.dumps(data)
+            data = json.loads(data)
+
+            df = pd.json_normalize(data['data']['tokens']['tokens'])
+            DF = pd.concat([DF, df], ignore_index=True)
+
+        if len(df) < 100:
+            return DF
+        else:
+            offset += 100
+
+get_holder_traits("stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420", "badness", "21")
 

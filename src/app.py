@@ -209,26 +209,30 @@ app.clientside_callback(
     output=[
     Output('image-store', 'data'),
     #Output('layer-config-store', 'data'),
-    Output("collapse", "is_open")
+    Output("collapse", "is_open"),
+    Output('sg-wallet', 'invalid'),
+    Output("alert-auto", "is_open"),
     ],
     inputs=[
-    Input('address-store', 'data'),
-    #Input('generate-circle-btn', 'n_clicks'),
+    #Input('address-store', 'data'),
+    Input('generate-circle-btn', 'n_clicks'),
     #Input('change-bg-btn', 'n_clicks'),
     ],
     state=[
     State('bg-color-store', 'data'),
     State('image-store', 'data'),
     State('sg-wallet', 'value')],
-    background=True,
-    running=[
-        (Output("generate-circle-btn", "disabled"), True, False),
-        #(Output("change-bg-btn", "disabled"), True, False),
-        (Output("download-btn", "disabled"), True, False),
-        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
-    ],
+    #background=True,
+    #running=[
+    #    (Output("generate-circle-btn", "disabled"), True, False),
+    #    #(Output("change-bg-btn", "disabled"), True, False),
+    #    (Output("download-btn", "disabled"), True, False),
+    #    (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
+    #],
 )
-def update_image(address, bg_color_data, current_image_data, wallet):
+def update_image(n_clicks, bg_color_data, current_image_data, wallet):
+    address = f.check_if_wallet_exists(wallet)
+
     if address:
         layers = f.get_layer_config(address)
         image_data = f.create_image(layers, 'rgba(219,44,116,1)')
@@ -265,11 +269,9 @@ def update_image(address, bg_color_data, current_image_data, wallet):
 
         # Convert the BytesIO image data to base64 for storage in the dcc.Store
         encoded_image = f"data:image/png;base64,{base64.b64encode(image_data.getvalue()).decode()}"
-
-        return [encoded_image, True]
+        return [encoded_image, True, False, False]
     else:
-        return [False, False]
-
+        return [False, False, True, True]
 
 @app.callback(
     Output('image-display', 'src'),
@@ -301,20 +303,6 @@ def update_download_button(image_data):
     return f'data:application/octet-stream;base64,{base64.b64encode(image_io.getvalue()).decode()}'
 
 
-@app.callback(
-    Output('sg-wallet', 'invalid'),
-    Output("alert-auto", "is_open"),
-    Output("address-store", "data"),
-    Input('generate-circle-btn', 'n_clicks'),
-    State('sg-wallet', 'value'),
-    State('address-store', 'data'),
-)
-def check_input(n_clicks, value, data):
-    address = f.check_if_wallet_exists(value)
-    if address:
-        return False, False, address
-    else:
-        return True, True, data
 
 
 """@app.callback(
