@@ -116,7 +116,7 @@ def query_wallet(string):
         return wallets
 
 
-def check_if_wallet_exists(input: str):
+"""def check_if_wallet_exists(input: str):
     url = graphQLEndpoint
 
     # check if .stars ending and remove
@@ -154,7 +154,39 @@ def check_if_wallet_exists(input: str):
         elif "name.name" in data.keys() and input in data['name.name'].values:
             return data[data['name.name'] == input]['address'].values[0]
         else:
+            return False"""
+
+
+def check_if_wallet_exists(input: str):
+    url = graphQLEndpoint
+
+    # check if .stars ending and remove
+    if input[-6:] == ".stars":
+        input = input[:-6]
+
+    body = ''' 
+                    {
+                      wallet(address: "''' + input + '''") {
+                              name {
+                                associatedAddr
+                              }
+                      }
+                    }
+        '''
+
+    r = requests.post(url=url, json={"query": body})
+
+    if r.status_code == 200:
+        data = r.json()
+        data = json.dumps(data)
+        data = json.loads(data)
+
+        if data['data']['wallet']['name']:
+            return data['data']['wallet']['name']['associatedAddr']
+        else:
             return False
+
+
 
 def get_traits(input: str) -> pd.DataFrame:
     url = "https://constellations-api.mainnet.stargaze-apis.com/graphql"
