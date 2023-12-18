@@ -92,7 +92,7 @@ app.layout = dbc.Container([
                     dbc.Collapse(
                         children=[
                             dbc.Row([
-                                    html.Img(id='image-display', style={'height': '450px'}),
+                                    html.Img(id='image-display', style={'height': '400px'}),
                             ], justify="center"),
                             dbc.Row([
                                     dbc.Button(

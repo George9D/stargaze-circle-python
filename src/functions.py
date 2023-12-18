@@ -216,5 +216,3 @@ def get_holder_traits(input: str, trait: str, value: str) -> pd.DataFrame:
         else:
             offset += 100
 
-get_holder_traits("stars19jq6mj84cnt9p7sagjxqf8hxtczwc8wlpuwe4sh62w45aheseues57n420", "badness", "21")
-
