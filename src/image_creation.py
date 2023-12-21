@@ -128,8 +128,8 @@ def create_image_new(
                 avatar = Image.open(debug_img_path)
             else:
                 avatar = Image.open(
-                    download_avatar(users[user_idx]["avatar_url"], "assets/placeholder_avatar.png")
-                    #download_avatar(users[user_idx]["avatar_url"], "assets/stargaze_star_gradient.png")
+                    #download_avatar(users[user_idx]["avatar_url"], "assets/placeholder_avatar.png")
+                    download_avatar(users[user_idx]["avatar_url"], "assets/stargaze_star_gradient.png")
                 )
 
             avatar = avatar.convert("RGB").resize((usr_img_hw, usr_img_hw))
