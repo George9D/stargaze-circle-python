@@ -221,16 +221,17 @@ app.clientside_callback(
     State('bg-color-store', 'data'),
     State('image-store', 'data'),
     State('sg-wallet', 'value')],
-    background=True,
-    running=[
-        (Output("generate-circle-btn", "disabled"), True, False),
-        #(Output("change-bg-btn", "disabled"), True, False),
-        (Output("download-btn", "disabled"), True, False),
-        (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
-    ],
+    #background=True,
+    #running=[
+    #    (Output("generate-circle-btn", "disabled"), True, False),
+    #    #(Output("change-bg-btn", "disabled"), True, False),
+    #    (Output("download-btn", "disabled"), True, False),
+    #    (Output("generate-circle-btn", "children"), [dbc.Spinner(size="sm"), " Generating..."], ["Generate Stargaze Circles"]),
+    #],
 )
 def update_image(n_clicks, bg_color_data, current_image_data, wallet):
     address = f.check_if_wallet_exists(wallet)
+    print("address:", address)
 
     if address:
         layers = f.get_layer_config(address)

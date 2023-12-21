@@ -1,3 +1,4 @@
+import datetime
 import json
 from pathlib import Path
 
@@ -167,8 +168,8 @@ def check_if_wallet_exists(input: str):
     body = ''' 
                     {
                       wallet(address: "''' + input + '''") {
-                              name {
-                                associatedAddr
+                              stats {
+                                address
                               }
                       }
                     }
@@ -181,19 +182,20 @@ def check_if_wallet_exists(input: str):
         data = json.dumps(data)
         data = json.loads(data)
 
-        if data['data']['wallet']['name']:
-            return data['data']['wallet']['name']['associatedAddr']
+
+        if data['data']['wallet']['stats']:
+            return data['data']['wallet']['stats']['address']
         else:
             return False
 
 
 
-def get_traits(input: str) -> pd.DataFrame:
+def get_traits(collection: str) -> pd.DataFrame:
     url = "https://constellations-api.mainnet.stargaze-apis.com/graphql"
 
     body = ''' 
                     {
-                      collectionTraits(collectionAddr: "stars1yr75f44g8usydwk0cye355aze9v92n32dagkr6nxkycq0ehd2ufs2692sh"){
+                      collectionTraits(collectionAddr: "''' + collection + '''"){
                         name,
                         values{
                           value
@@ -210,12 +212,10 @@ def get_traits(input: str) -> pd.DataFrame:
         data = json.loads(data)
 
         df = pd.json_normalize(data['data']['collectionTraits'], "values", ['name'])
-        #df = df.pivot(columns="name", values="value")
-
-        print(df)
+        return df
 
 
-def get_holder_traits(input: str, trait: str, value: str) -> pd.DataFrame:
+def get_current_holders(collection: str) -> pd.DataFrame:
     url = "https://constellations-api.mainnet.stargaze-apis.com/graphql"
     offset = 0
     DF = pd.DataFrame()
@@ -223,7 +223,40 @@ def get_holder_traits(input: str, trait: str, value: str) -> pd.DataFrame:
     while True:
         body = ''' 
                         {
-                        tokens(collectionAddr: "''' + input + '''",
+                        tokens(collectionAddr: "''' + collection + '''", offset: ''' + str(offset) + ''', limit: 100){
+                              tokens{
+                                tokenId
+                                ownerAddr
+                              }
+                          }
+                        }
+            '''
+
+        r = requests.post(url=url, json={"query": body})
+
+        if r.status_code == 200:
+            data = r.json()
+            data = json.dumps(data)
+            data = json.loads(data)
+
+            df = pd.json_normalize(data['data']['tokens']['tokens'])
+            DF = pd.concat([DF, df], ignore_index=True)
+
+        if len(df) < 100:
+            return DF
+        else:
+            offset += 100
+
+
+def get_current_holders_by_trait(collection: str, trait: str, value: str) -> pd.DataFrame:
+    url = "https://constellations-api.mainnet.stargaze-apis.com/graphql"
+    offset = 0
+    DF = pd.DataFrame()
+
+    while True:
+        body = ''' 
+                        {
+                        tokens(collectionAddr: "''' + collection + '''",
                             filterByTraits: {name: "''' + trait + '''", value: "''' + value + '''"}, offset: ''' + str(offset) + ''', limit: 100){
                               tokens{
                                 tokenId
@@ -248,3 +281,22 @@ def get_holder_traits(input: str, trait: str, value: str) -> pd.DataFrame:
         else:
             offset += 100
 
+
+def get_minters_first(collection: str, number: int) -> pd.DataFrame:
+    pass
+
+def get_minters_last(collection: str, number: int) -> pd.DataFrame:
+    pass
+
+def get_minters_date_range(collection: str, startDate: datetime.datetime, endDate: datetime.datetime) -> pd.DataFrame:
+    pass
+
+
+def get_mints_first(collection: str, number: int) -> pd.DataFrame:
+    pass
+
+def get_mints_last(collection: str, number: int) -> pd.DataFrame:
+    pass
+
+def get_mints_date_range(collection: str, startDate: datetime.datetime, endDate: datetime.datetime) -> pd.DataFrame:
+    pass
