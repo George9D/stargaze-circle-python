@@ -95,6 +95,7 @@ app.layout = dbc.Container([
                                     html.Img(id='image-display', style={'height': '400px'}),
                             ], justify="center"),
                             dbc.Row([
+                                dbc.Col([
                                     dbc.Button(
                                         children=["Download"],
                                         id="download-btn",
@@ -102,8 +103,22 @@ app.layout = dbc.Container([
                                         className="m-1",
                                         color="primary",
                                         n_clicks=0,
-                                        #style={'width': '400px'}
+                                        style={'width': '200px'}
                                     ),
+                                ], xs=6, sm=6, md=6, lg=6, xl=6, xxl=6),
+                                dbc.Col([
+                                        html.A(
+                                            href="https://twitter.com/intent/tweet?text=I%20just%20created%20my%20%40StargazeZone%20circle.%20Create%20yours%20on%20http%3A%2F%2Fstargaze-circles.zone%20%23MyStarsCircle%20%24STARS",
+                                            children=[
+                                                html.Img(
+                                                    alt="Link to stargaze.zone",
+                                                    src="assets/logo-white.png",
+                                                    height="20px"
+                                                )
+                                            ],
+                                            target="_blank"
+                                        )
+                                ], align="center", xs=6, sm=6, md=6, lg=6, xl=6, xxl=6)
 
                             ], justify="center", style={'margin-top': '20px'}),
                         ],
@@ -126,7 +141,6 @@ app.layout = dbc.Container([
                'width': '100%',
                },
     ),
-
     dbc.Row([
                 html.Footer([
                     dbc.Col([
