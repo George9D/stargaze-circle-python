@@ -51,7 +51,7 @@ def get_layer_config(wallet):
             #Config.LAYER_CONFIG[1][0] = 285
             #Config.LAYER_CONFIG[1][1] = len(df) - 1
             nbr_layers = 2
-        elif (len(df) > 8) & (len(df) < 21):
+        elif (len(df) > 8) & (len(df) <= 21):
             Config.LAYER_CONFIG[1][0] = 250
             nbr_layers = 2
         elif (len(df) > 21) & (len(df) < 50):
