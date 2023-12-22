@@ -115,6 +115,9 @@ def create_image_new(
         # print(layer_config[layer_idx])
 
         R, count, gap_size, users, factor = layer_config[layer_idx]
+
+        print(users)
+
         gaps_count = count + factor
         base_usr_img_angle = 360 / len(users)
 
