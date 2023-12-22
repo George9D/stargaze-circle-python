@@ -89,7 +89,9 @@ def get_profil_pict(address):
         data = json.dumps(data)
         data = json.loads(data)
 
-        if data['data']['wallet']['name']:
+        print(data)
+
+        if data['data']['wallet']['name']['media']:
             return data['data']['wallet']['name']['media']['visualAssets']['sm']['staticUrl']
         else:
             return 0
