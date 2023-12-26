@@ -81,21 +81,24 @@ def get_profil_pict(address):
           }    
     }
     '''
+    try:
+        r = requests.post(url=url, json={"query": body})
 
-    r = requests.post(url=url, json={"query": body})
+        if r.status_code == 200:
+            data = r.json()
+            data = json.dumps(data)
+            data = json.loads(data)
 
-    if r.status_code == 200:
-        data = r.json()
-        data = json.dumps(data)
-        data = json.loads(data)
+            print(data)
 
-        print(data)
-
-        if data['data']['wallet']['name']['media']:
-            return data['data']['wallet']['name']['media']['visualAssets']['sm']['staticUrl']
+            if data['data']['wallet']['name']['media']:
+                return data['data']['wallet']['name']['media']['visualAssets']['sm']['staticUrl']
+            else:
+                return 0
         else:
             return 0
-    else:
+    except:
+        print("No profil picture found!")
         return 0
 
 
